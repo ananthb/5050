@@ -1,0 +1,97 @@
+{#
+#
+# Copyright (C) 2013 Ananth Bhaskararaman
+# This file is part of 5050.
+#
+# 5050 URL roulette is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 5050 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 5050.  If not, see <http://www.gnu.org/licenses/>.
+#}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <meta name="description" content="Link shortener that can randomly choose between two give links">
+  <style>
+      body{font-family:"Rockwell Extra Bold","Rockwell Bold",monospace;margin:1em}a{color:#0fe611}header{text-transform:uppercase;font-weight:bold}#page-header{margin-left:2em;padding:.5em;margin:2em}#page-header header{float:left;font-size:2em}#content{width:550px;margin-left:auto;margin-right:auto;text-align:center}.views{font-weight:bold;font-size:2em}.form-field{margin-bottom:5px}.form-field label{float:left;width:120px}#traceback{color:#e21212}#error header{color:#e5d710}#error small{position:absolute;bottom:0}#help{text-align:left;border:1px solid black;padding:5px;margin:30px}small{font-size:11px}p{font-size:15px;}header a{text-decoration:none;color:#000}header a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <a href="https://github.com/ananthb/5050"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <div id="content">
+    <div id="page-header">
+      <header><a href="{{ host }}">Fifty Fifty</a></header>
+      <small>The link shortener with a twist</small>
+    </div>
+    {% if traceback %}
+    {# Displays the traceback if available #}
+    <div id="traceback">
+      <header><h2>Latest Traceback</h2></header>
+      {% for line in traceback %}
+      <p>{{ line }}</p>
+      {% endfor %}
+    </div>
+    {% elif error %}
+    {# Simple error page to be used in production #}
+    <div id="error">
+      <header><h2>Looks like an error!</h2></header>
+      <p>Is this what an error feels like?</p>
+      <p>Not to worry.</p>
+      <p>Our brightest and best Oompa Loompas* are fixing it as we speak</p>
+      <p>Why don't you try refreshing now</p>
+      <a href="http://5050.me/o8NAO">Take me home</a>
+    </div>
+    <small>*Not for sale. Do not contact for purchase.</small>
+    {% elif url_id %}
+    {# Displays the statistics for a link #}
+    <div id="stats">
+      <p>Your 50/50 link is ready</p>
+      <a href="{{ host }}/{{ url_id }}">{{ host }}/{{ url_id }}</a>
+      <p>Share</p>
+      <a href="http://www.reddit.com/r/fiftyfifty/submit?title{{ url_title }}&url=http://5050.me/{{ url_id }}">Reddit</a> | <a href="https://twitter.com/share?url=http://5050.me/{{ url_id }}&text={{ url_title }}">Twitter</a>
+      <h3>Statistics for your links</h3>
+      <p>The links have been viewed <span class="views">{{ all_views|default(0, true) }}</span> times</p>
+      <p>Views per link</p>
+      <a href="{{ views['url1'] }}">First link</a>: <span class="views">{{ views['for_one']|default(0, true) }}</span>
+      <a href="{{ views['url2'] }}">Second link</a>: <span class="views">{{views['for_two']|default(0, true) }}</span>
+      <p>Ratio {{ ratio }}</p>
+    </div>
+    {% else %}
+    {# Displays the homepage and the form #}
+    <form  id="links-form" action="/" method="post">
+      <div class="form-field">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" />
+      </div>
+      <div class="form-field">
+        <label for="url1">First Link</label>
+        <input type="text" id="url1" name="url1" />
+      </div>
+      <div class="form-field">
+        <label for="url2">Second Link</label>
+        <input type="text" id="url2" name="url2" />
+      </div>
+      <div class="form-field">
+        <button type="submit" name="submit">Go</button>
+      </div>
+    </form>
+    <div id="help">
+      <h3>Help</h3>
+      <p>1.Enter two links and click go.</p>
+      <p>2.You will get a shortened link which will redirect to either one of the links at random.</p>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>

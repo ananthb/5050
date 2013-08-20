@@ -1,0 +1,26 @@
+application: realfiftyfifty
+version: 0-3-4
+runtime: python27
+api_version: 1
+threadsafe: true
+
+libraries:
+- name: jinja2
+  version: 2.6
+
+- name: markupsafe
+  version: 0.15
+
+default_expiration: "365d"
+
+handlers:
+- url: /favicon\.ico
+  static_files: static/favicon.ico
+  upload: static/favicon.ico
+
+- url: /robots\.txt
+  static_files: static/robots.txt
+  upload: static/robots.txt
+
+- url: /.*
+  script: main.app

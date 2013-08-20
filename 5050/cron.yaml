@@ -1,0 +1,4 @@
+cron:
+- description: update views counter
+  url: /update-views
+  schedule: every 5 minutes
