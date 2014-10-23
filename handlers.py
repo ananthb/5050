@@ -56,7 +56,8 @@ class BaseHandler(webapp2.RequestHandler):
 
     def render(self, template_name, values={}):
         """Renders the template with the values dict"""
-        values.update(host=app_identity.get_default_version_hostname())
+        host_name = "http://" + app_identity.get_default_version_hostname()
+        values.update(host=host_name)
 
         template = self.jinja_env.get_template(template_name)
         self.response.out.write(template.render(values))
