@@ -60,7 +60,7 @@ class BaseHandler(webapp2.RequestHandler):
         if ext.debug():
             values.update(host='http://' + os.environ['HTTP_HOST'])
         else:
-            values.update(host='http://5050.me')
+            values.update(host='http://half-n-half.appspot.com')
 
         template = self.jinja_env.get_template(template_name)
         self.response.out.write(template.render(values))
