@@ -29,8 +29,9 @@ import re
 import webapp2
 import jinja2
 from google.appengine.api import taskqueue
+from google.appengine.api import app_identity
 
-import ext
+import id_gen
 from models import RandomURL
 
 
@@ -44,23 +45,18 @@ class BaseHandler(webapp2.RequestHandler):
 
     """
 
-
     @webapp2.cached_property
     def jinja_env(self):
         return jinja2.Environment(
-            loader = jinja2.FileSystemLoader(
+            loader=jinja2.FileSystemLoader(
                 os.path.dirname(__file__)
                 ),
-                trim_blocks=True
+            trim_blocks=True
             )
 
     def render(self, template_name, values={}):
         """Renders the template with the values dict"""
-
-        if ext.debug():
-            values.update(host='http://' + os.environ['HTTP_HOST'])
-        else:
-            values.update(host='http://half-n-half.appspot.com')
+        values.update(host=app_identity.get_default_version_hostname())
 
         template = self.jinja_env.get_template(template_name)
         self.response.out.write(template.render(values))
@@ -94,6 +90,7 @@ class BaseHandler(webapp2.RequestHandler):
                 }
         self.render('template.html', values)
 
+
 class IndexHandler(BaseHandler):
 
     """Displays form for accepting links.
@@ -102,7 +99,6 @@ class IndexHandler(BaseHandler):
     of visits and other statistics is shown.
 
     """
-
 
     def get(self):
         values = {
@@ -154,7 +150,7 @@ class IndexHandler(BaseHandler):
 
         url = 'Some random url'
         while url:
-            rand_id = ext.id_generator()
+            rand_id = id_gen.generate()
             url = RandomURL.get_by_id(rand_id)
 
         new_urls = RandomURL(id=rand_id, url1=url1, url2=url2)
@@ -162,6 +158,7 @@ class IndexHandler(BaseHandler):
             new_urls.title = title
         new_urls.put()
         self.redirect('/?id={}'.format(rand_id))
+
 
 class RedirectHandler(BaseHandler):
 
@@ -183,18 +180,23 @@ class RedirectHandler(BaseHandler):
             self.abort(404)
 
         if random.random() < 0.5:
-            payload = {'id': url_id,
-                       'index': 1}
+            payload = {
+                'id': url_id,
+                'index': 1
+            }
             self.redirect(str(urls.url1))
         else:
-            payload = {'id': url_id,
-                       'index': 2}
+            payload = {
+                'id': url_id,
+                'index': 2
+            }
             self.redirect(str(urls.url2))
         taskqueue.add(
-                payload = json.dumps(payload),
-                queue_name='views',
-                method='PULL'
-                )
+            payload=json.dumps(payload),
+            queue_name='views',
+            method='PULL'
+            )
+
 
 class ViewsUpdateBot(BaseHandler):
 
@@ -211,7 +213,7 @@ class ViewsUpdateBot(BaseHandler):
         for task in tasks:
             payload = json.loads(task.payload)
             url_id = payload['id']
-            if not stats.has_key(url_id):
+            if url_id not in stats:
                 stats.update({url_id: {'one': 0, 'two': 0}})
             if payload['index'] == 1:
                 stats[payload['id']]['one'] += 1

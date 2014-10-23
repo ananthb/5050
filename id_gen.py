@@ -17,25 +17,20 @@
 # along with 5050.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 import random
 import string
 
-def debug():
-    """Returns True if running locally, else False"""
+ALL_THE_LETTERS = string.ascii_letters + string.digits
 
-    return os.getenv('SERVER_SOFTWARE').startswith('Dev')
 
-def id_generator(
-    size=5,
-    chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
+def generate(size=5, chars=ALL_THE_LETTERS):
 
     """Random string generator
 
     Accepts size and characters parameters. Returns a string of
     given size (defaults to 5) composed of random characters from
-    the characters input. Characters defaults to lowercase and
-    uppercase alphabets and digits.
+    the characters input. Characters default to lowercase and
+    uppercase alphabets, and digits.
 
     """
 

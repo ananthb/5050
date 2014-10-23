@@ -18,10 +18,8 @@
 #
 
 import webapp2
-
 from handlers import IndexHandler, RedirectHandler, ViewsUpdateBot
 
-import ext
 
 app = webapp2.WSGIApplication(
     routes=[
@@ -29,5 +27,5 @@ app = webapp2.WSGIApplication(
         webapp2.Route(r'/<url_id:[a-zA-Z0-9]*>', handler=RedirectHandler),
         webapp2.Route(r'/update-views', handler=ViewsUpdateBot)
     ],
-    debug=ext.debug()
+    debug=False,
 )
