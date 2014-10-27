@@ -27,9 +27,7 @@ import json
 import re
 
 import webapp2
-import jinja2
 from google.appengine.api import taskqueue
-from google.appengine.api import app_identity
 
 import id_gen
 from models import RandomURL
@@ -45,21 +43,15 @@ class BaseHandler(webapp2.RequestHandler):
 
     """
 
-    @webapp2.cached_property
-    def jinja_env(self):
-        return jinja2.Environment(
-            loader=jinja2.FileSystemLoader(
-                os.path.dirname(__file__)
-                ),
-            trim_blocks=True
-            )
 
     def render(self, template_name, values={}):
         """Renders the template with the values dict"""
-        host_name = "http://" + app_identity.get_default_version_hostname()
-        values.update(host=host_name)
+        hostname = self.app.config["hostname"]
+        values.update(host=hostname)
 
-        template = self.jinja_env.get_template(template_name)
+        template = self.app.config["jinja_env"].get_template(
+            template_name
+        )
         self.response.out.write(template.render(values))
 
     def handle_exception(self, exception, debug):

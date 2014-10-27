@@ -17,9 +17,22 @@
 # along with 5050.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 import webapp2
+import jinja2
+from google.appengine.api import memcache
+from google.appengine.api import app_identity
 from handlers import IndexHandler, RedirectHandler, ViewsUpdateBot
 
+jinja_env = jinja2.Environment(
+    # Loading templates from the filesystem
+    loader=jinja2.FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), "")),
+    # I'm using memcached as a cache for compiled templates
+    bytecode_cache=jinja2.MemcachedBytecodeCache(
+        client=memcache.Client()
+    ),
+)
 
 app = webapp2.WSGIApplication(
     routes=[
@@ -27,5 +40,10 @@ app = webapp2.WSGIApplication(
         webapp2.Route(r'/<url_id:[a-zA-Z0-9]*>', handler=RedirectHandler),
         webapp2.Route(r'/update-views', handler=ViewsUpdateBot)
     ],
-    debug=False,
+    # The appengine dev environ sets SERVER_SOFTWARE to Dev...
+    debug=os.environ.get("SERVER_SOFTWARE").startswith("Dev"),
+    config={
+        "jinja_env": jinja_env,
+        "hostname": app_identity.get_default_version_hostname(),
+    }
 )
